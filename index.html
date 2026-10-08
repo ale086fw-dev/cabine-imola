@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Ricerca Cabine</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    max-width:1000px;
+    margin:20px auto;
+    padding:20px;
+}
+
+h1{
+    color:#0066cc;
+}
+
+#search{
+    width:100%;
+    padding:12px;
+    font-size:20px;
+}
+
+.result{
+    border:1px solid #ddd;
+    padding:10px;
+    margin-top:8px;
+    border-radius:5px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Ricerca Cabine</h1>
+
+<input id="search" type="text" placeholder="Codice o nome cabina">
+
+<div id="results"></div>
+
+<script>
+
+let data=[];
+
+fetch('Cabine_MyMaps_PULITO.csv')
+.then(response => response.text())
+.then(text => {
+
+    let rows=text.trim().split('\n');
+
+    for(let i=1;i<rows.length;i++){
+
+        let c=rows[i].split(',');
+
+        if(c.length>=4){
+
+            data.push({
+                codice:c[0],
+                cabina:c[1],
+                lat:c[2],
+                lon:c[3]
+            });
+
+        }
+    }
+});
+
+document.getElementById("search").addEventListener("input", function(){
+
+    let q=this.value.toLowerCase();
+
+    if(q.length<2){
+
+        document.getElementById("results").innerHTML="";
+        return;
+
+    }
+
+    let risultati=data.filter(x =>
+
+        x.codice.toLowerCase().includes(q) ||
+        x.cabina.toLowerCase().includes(q)
+
+    ).slice(0,20);
+
+    let html="";
+
+    risultati.forEach(r => {
+
+        html += `
+        <div class="result">
+        <b>${r.codice}</b> - ${r.cabina}
+        <br><br>
+        <a target="_blank"
+        href="https://www.google.com/maps?q=${r.lat},${r.lon}">
+        📍 Apri Google Maps
+        </a>
+        </div>
+        `;
+
+    });
+
+    document.getElementById("results").innerHTML=html;
+
+});
+
+</script>
+
+</body>
+</html>
